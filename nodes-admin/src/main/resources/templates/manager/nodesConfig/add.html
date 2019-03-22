@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html  lang="zh" xmlns:th="http://www.thymeleaf.org">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-nodesConfig-add">
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">节点编码：</label>
+				<div class="col-sm-8">
+					  <select name="nodeCode" class="form-control m-b" th:with="type=${@dict.getType('score_type')}">
+	                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+	                </select>
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">节点名称：</label>
+				<div class="col-sm-8">
+					<input id="nodeNames" name="nodeNames" class="form-control" type="text">
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">JSON数据存储：</label>
+				<div class="col-sm-8">
+				  <textarea type="text"id="nodeValue" name="nodeValue" class="form-control" placeholder="请输入文本"></textarea>
+				</div>
+			</div>
+			<div class="form-group">	
+				<label class="col-sm-3 control-label">使用状态：</label>
+				<div class="col-sm-8">
+				        <div class="radio-box" th:each="dict : ${@dict.getType('sys_normal_disable')}">
+						<input type="radio" th:id="${dict.dictCode}" name="status" th:value="${dict.dictValue}" th:checked="${dict.isDefault == 'Y' ? true : false}">
+						<label th:for="${dict.dictCode}" th:text="${dict.dictLabel}"></label>
+					</div>
+					
+				</div>
+			</div>
+			
+		</form>
+	</div>
+    <div th:include="include::footer"></div>
+    <script type="text/javascript">
+		var prefix = ctx + "manager/nodesConfig"
+		$("#form-nodesConfig-add").validate({
+			rules:{
+				xxxx:{
+					required:true,
+				},
+			},
+			focusCleanup: true
+		});
+		
+		function submitHandler() {
+	        if ($.validate.form()) {
+	            $.operate.save(prefix + "/add", $('#form-nodesConfig-add').serialize());
+	        }
+	    }
+	</script>
+</body>
+</html>

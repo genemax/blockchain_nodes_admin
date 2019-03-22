@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta charset="utf-8">
+<head th:include="include :: header"></head>
+<body class="gray-bg">
+    
+     <div class="container-div">
+		<div class="row">
+			<div class="col-sm-12 search-collapse">
+				<form id="formId">
+					<div class="select-list">
+						<ul>
+							<li>
+								账号名称：<input type="text" name="userName"/>
+							</li>
+
+							<li>
+								注册手机号：<input type="text" name="mobile"/>
+							</li>
+
+							<li>
+								注册邮箱：<input type="text" name="email"/>
+							</li>
+							<li>
+								使用状态：
+								<select name="status" th:with="type=${@dict.getType('sys_normal_disable')}">
+									<option value="">所有</option>
+									<option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+								</select>
+							</li>
+							<li>
+							  <div class="form-group">
+								   排序方式:
+								    <select  name="orderType">
+								      <option value="1">注册时间</option>
+								      <option value="2">提交时间</option>
+								      <option value="3">审核时间</option>
+								      <option value="4">登录时间</option>
+								    </select>
+								</div>
+							
+							</li>
+							
+							<li>
+								<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+								<a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+							</li>
+						</ul>
+					</div>
+				</form>
+			</div>
+			
+	        <div class="btn-group-sm" id="toolbar" role="group">
+				<a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="manager:account:add">
+					<i class="fa fa-plus"></i> 添加
+				</a>
+				<a class="btn btn-primary btn-edit disabled" onclick="$.operate.edit()" shiro:hasPermission="manager:account:edit">
+					<i class="fa fa-edit"></i> 修改
+				</a>
+				<a class="btn btn-danger btn-del btn-del disabled" onclick="$.operate.removeAll()" shiro:hasPermission="manager:account:remove">
+					<i class="fa fa-remove"></i> 删除
+				</a>
+				<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="manager:account:export">
+						<i class="fa fa-download"></i> 导出
+				 </a>
+			</div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+		</div>
+	</div>
+    <div th:include="include :: footer"></div>
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('manager:account:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('manager:account:remove')}]];
+        var sysNormalDisable = [[${@dict.getType('sys_normal_disable')}]];
+        var certificateType = [[${@dict.getType('certificate_type')}]];
+        var userCheckStatus = [[${@dict.getType('user_check_status')}]];
+        var prefix = ctx + "manager/account";
+       
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+				exportUrl: prefix + "/export",
+                modalName: "账户",
+		        showExport: true,
+                columns: [{
+		            checkbox: true
+		        },
+				{
+					field : 'id', 
+					title : '主键',
+					visible: false
+				},
+				{
+					field : 'userName', 
+					title : '用户名',
+					sortable: true
+				},
+				{
+					field : 'mobile', 
+					title : '手机号',
+					sortable: true
+				},
+				{
+					field : 'email', 
+					title : '邮箱',
+					sortable: true
+				},
+				{field : "status", title : "用户状态",sortable: true,  formatter: function(value, row, index) {
+	            	return $.table.selectDictLabel(sysNormalDisable, value);
+	            }}, 
+				{field : "realName", title : "实名", sortable: true}, 
+				{field : "certificateType", title : "证件类型",sortable: true,formatter: function(value, row, index) {
+	            	return $.table.selectDictLabel(certificateType, value);
+	            }}, 
+				{field : "certificateCode", title : "证件号码", width : "60px"}, 
+				{field : "checkStatus", title : "审核状态",sortable: true,  formatter: function(value, row, index) {
+	            	return $.table.selectDictLabel(userCheckStatus, value);
+	            }}, 
+				
+				{
+					field : 'createTime', 
+					title : '注册时间',
+					sortable: true
+				},
+				{field : "submitDate", title : "提交时间",sortable: true}, 
+		        {field : "examineDate", title : "审核时间" ,sortable: true}, 
+		        {field : "lastLoginDate", title : "登录时间" ,sortable: true}, 
+		        {
+		            title: '操作',
+		            align: 'center',
+		            formatter: function(value, row, index) {
+		            	var actions = [];
+		            	actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="#" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="#" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+						return actions.join('');
+		            }
+		        }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>
